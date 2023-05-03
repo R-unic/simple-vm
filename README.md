@@ -1,27 +1,29 @@
-# bytecode
+# simple-vm
 
-TODO: Write a description here
+greater than
+```
+vm = VM.new [ # 10 > 20
+  Op::PUSH, 0,
+  Op::PUSH, 1,
+  Op::GT,
+  Op::ECHO,
+  Op::HALT
+], [10_f32, 20_f32]
+vm.run # => 0.0 (false)
+```
 
-## Installation
-
-TODO: Write installation instructions here
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
-
-## Contributing
-
-1. Fork it (<https://github.com/your-github-user/bytecode/fork>)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
-
-## Contributors
-
-- [R-unic](https://github.com/your-github-user) - creator and maintainer
+simple arithmetic
+```
+vm = VM.new [ # 14 + 6 - 12 * 3
+  Op::PUSH, 0,
+  Op::PUSH, 1,
+  Op::PUSH, 2,
+  Op::PUSH, 3,
+  Op::MUL,
+  Op::SUB,
+  Op::ADD,
+  Op::ECHO,
+  Op::HALT
+], [14_f32, 6_f32, 12_f32, 3_f32]
+vm.run # => -16.0
+```

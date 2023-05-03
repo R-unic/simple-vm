@@ -36,11 +36,6 @@ class VM
         value = @stack[-1]
         @stack << value
         @ptr += 1
-      when Op::ASSIGN
-        right = @stack.pop
-        left = @stack.pop
-        @stack << (left + right)
-        @ptr += 1
       when Op::ADD
         right = @stack.pop
         left = @stack.pop
@@ -163,9 +158,13 @@ end
 vm = VM.new [
   Op::PUSH, 0,
   Op::PUSH, 1,
-  Op::GT,
+  Op::PUSH, 2,
+  Op::PUSH, 3,
+  Op::MUL,
+  Op::SUB,
+  Op::ADD,
   Op::ECHO,
   Op::HALT
-], [10_f32, 20_f32]
+], [14_f32, 6_f32, 12_f32, 3_f32]
 
 vm.run
