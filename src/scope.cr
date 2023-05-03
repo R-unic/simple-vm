@@ -1,5 +1,7 @@
 require "./types"
+require "./closure"
 
+# TODO: invalid variable identifiers
 class Scope
   @variables : Hash(String, Types::ValidType)
   @parent : Scope? = nil
@@ -21,5 +23,9 @@ class Scope
 
   def assign(name : String, value : Types::ValidType)
     @variables[name] = value
+  end
+
+  def create_closure(name)
+    Closure.new(name, self)
   end
 end

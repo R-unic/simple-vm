@@ -5,6 +5,8 @@ enum Op
   POP
   SWAP
   DUP
+  PROC
+  CALL
   LOAD
   STORE
   CONCAT

@@ -1,3 +1,3 @@
 module Types
-  alias ValidType = Float32 | String
+  alias ValidType = Float32 | String | VM | Closure
 end
