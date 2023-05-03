@@ -5,6 +5,9 @@ enum Op
   POP
   SWAP
   DUP
+  LOAD
+  STORE
+  CONCAT
   ADD
   SUB
   MUL

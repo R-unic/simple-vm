@@ -1,10 +1,13 @@
+require "./types"
+require "./scope"
 require "./opcodes"
 
 class VM
-  def initialize(bytecode : Array(Int32 | Op), memory : Array(Float32))
+  def initialize(bytecode : Array(Int32 | Op), memory : Array(Types::ValidType))
     @bytecode = bytecode
     @memory = memory
-    @stack = [] of Float32
+    @scope = Scope.new
+    @stack = [] of Types::ValidType
     @ptr = 0
 
     raise "No HALT instruction found in bytecode" unless @bytecode.includes?(Op::HALT)
@@ -36,35 +39,49 @@ class VM
         value = @stack[-1]
         @stack << value
         @ptr += 1
+      when Op::LOAD
+        name = @memory[@bytecode[@ptr + 1].to_i].to_s
+        @stack << @scope.lookup(name)
+        @ptr += 2
+      when Op::STORE
+        name = @memory[@bytecode[@ptr + 1].to_i].to_s
+        value = @stack.pop
+        @scope.assign(name, value)
+        @ptr += 2
+      when Op::CONCAT
+        right = @stack.pop
+        left = @stack.pop
+        @stack << (left.to_s + right.to_s)
+        @ptr += 1
       when Op::ADD
         right = @stack.pop
         left = @stack.pop
-        @stack << (left + right)
+        @stack << (left.to_f32 + right.to_f32)
         @ptr += 1
       when Op::SUB
         right = @stack.pop
         left = @stack.pop
-        @stack << (left - right)
+        @stack << (left.to_f32 - right.to_f32)
         @ptr += 1
       when Op::MUL
         right = @stack.pop
         left = @stack.pop
-        @stack << (left * right)
+        @stack << (left.to_f32 * right.to_f32)
         @ptr += 1
       when Op::DIV
         right = @stack.pop
         left = @stack.pop
-        @stack << (left / right)
+        @stack << (left.to_f32 / right.to_f32)
         @ptr += 1
       when Op::POW
         right = @stack.pop
         left = @stack.pop
-        @stack << (left ** right)
+        @stack << (left.to_f32 ** right.to_f32)
         @ptr += 1
       when Op::MOD
         right = @stack.pop
         left = @stack.pop
-        @stack << (left % right)
+        @stack << (left.to_f32 % right.to_f32)
         @ptr += 1
       when Op::BSHL
         right = @stack.pop
@@ -112,27 +129,27 @@ class VM
       when Op::LT
         right = @stack.pop
         left = @stack.pop
-        @stack << ((left < right) ? 1_f32 : 0_f32)
+        @stack << ((left.to_f32 < right.to_f32) ? 1_f32 : 0_f32)
         @ptr += 1
       when Op::LTE
         right = @stack.pop
         left = @stack.pop
-        @stack << ((left <= right) ? 1_f32 : 0_f32)
+        @stack << ((left.to_f32 <= right.to_f32) ? 1_f32 : 0_f32)
         @ptr += 1
       when Op::GT
         right = @stack.pop
         left = @stack.pop
-        @stack << ((left > right) ? 1_f32 : 0_f32)
+        @stack << ((left.to_f32 > right.to_f32) ? 1_f32 : 0_f32)
         @ptr += 1
       when Op::GTE
         right = @stack.pop
         left = @stack.pop
-        @stack << ((left >= right) ? 1_f32 : 0_f32)
+        @stack << ((left.to_f32 >= right.to_f32) ? 1_f32 : 0_f32)
         @ptr += 1
       when Op::EQ
         right = @stack.pop
         left = @stack.pop
-        @stack << ((left == right) ? 1_f32 : 0_f32)
+        @stack << ((left.to_f32 == right.to_f32) ? 1_f32 : 0_f32)
         @ptr += 1
       when Op::JMP
         @ptr = @bytecode[@ptr + 1].to_i
@@ -157,14 +174,10 @@ end
 
 vm = VM.new [
   Op::PUSH, 0,
-  Op::PUSH, 1,
-  Op::PUSH, 2,
-  Op::PUSH, 3,
-  Op::MUL,
-  Op::SUB,
-  Op::ADD,
+  Op::STORE, 1,
+  Op::LOAD, 1,
   Op::ECHO,
   Op::HALT
-], [14_f32, 6_f32, 12_f32, 3_f32]
+], [12_f32, "a"] of Types::ValidType
 
 vm.run
