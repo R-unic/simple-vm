@@ -1,7 +1,7 @@
 # simple-vm
 
 greater than
-```
+```ruby
 vm = VM.new [ # 10 > 20
   Op::PUSH, 0,
   Op::PUSH, 1,
@@ -13,7 +13,7 @@ vm.run # => 0.0 (false)
 ```
 
 simple arithmetic
-```
+```ruby
 vm = VM.new [ # 14 + 6 - 12 * 3
   Op::PUSH, 0,
   Op::PUSH, 1,
