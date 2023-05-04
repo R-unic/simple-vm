@@ -28,6 +28,20 @@ vm = VM.new [ # 14 + 6 - 12 * 3
 vm.run # => -16.0
 ```
 
+### arrays & indexing
+```rb
+vm = VM.new [ # a = ["hello", "world"]; puts a[1]
+  Op::PUSH, 0,
+  Op::STORE, 1,
+  Op::LOAD, 1,
+  Op::INDEX, 2,
+  Op::ECHO,
+  Op::END
+], [["hello", "world"] of BaseValidType, "a", 1_i64] of ValidType
+
+vm.run # => world
+```
+
 ### closures
 ```rb
 do_something = VM.new [ # fn do_something(b) { echo a; echo b; }
