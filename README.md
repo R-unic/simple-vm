@@ -8,7 +8,7 @@ vm = VM.new [ # 10 > 20
   Op::GT,
   Op::ECHO,
   Op::END
-], [10_f32, 20_f32]
+], [10, 20]
 vm.run # => 0.0 (false)
 ```
 
@@ -24,7 +24,7 @@ vm = VM.new [ # 14 + 6 - 12 * 3
   Op::ADD,
   Op::ECHO,
   Op::END
-], [14_f32, 6_f32, 12_f32, 3_f32]
+], [14, 6, 12, 3]
 vm.run # => -16.0
 ```
 
@@ -80,7 +80,7 @@ fib = VM.new [
 
   Op::RETURN
 ], [
-  "n", 2_i64, 1_i64, "fib"
+  "n", 2, 1, "fib"
 ] of Types::ValidType
 
 vm = VM.new [
@@ -93,7 +93,7 @@ vm = VM.new [
   Op::ECHO,
   Op::END
 ], [
-  fib, "fib", "n", 25_i64
+  fib, "fib", "n", 25
 ] of Types::ValidType
 
 vm.run # 75025
