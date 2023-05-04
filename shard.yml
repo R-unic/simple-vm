@@ -1,11 +1,8 @@
 name: simple-vm
-version: 0.3.0
+version: 0.3.1
 description: |
   A simple user-defined bytecode VM
 
-repository: "https://github.com/R-unic/simple-vm"
-
-crystal: 1.8.1
 license: MIT
 authors:
   - R-unic <roleyspersonal@gmail.com>
