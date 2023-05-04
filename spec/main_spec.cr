@@ -1,7 +1,24 @@
 require "./spec_helper"
 
 describe VM do
-  # TODO: Write tests
+  it "should throw when variable identifiers are invalid" do
+    instructions = [
+      Op::PUSH, 0,
+      Op::STORE, 1,
+      Op::LOAD, 1,
+      Op::END
+    ]
+
+    vm = VM.new instructions, ["hello world", "saf123?"] of ValidType
+    expect_raises(Exception) { vm.run }
+
+    vm = VM.new instructions, ["hello world", "123saf"] of ValidType
+    expect_raises(Exception) { vm.run }
+
+    vm = VM.new instructions, ["hello world", "this$Is_Valid"] of ValidType
+    vm.run
+    vm.stack.first.should eq("hello world")
+  end
 
   it "should throw when loading an undefined variable" do
     vm = VM.new [
