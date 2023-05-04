@@ -1,6 +1,6 @@
 require "./closure"
 
-# TODO: invalid variable identifiers, already defined variables, undefined variables
+# TODO: invalid variable identifiers
 class Scope
   @variables : Hash(String, ValidType)
   @parent : Scope? = nil
@@ -11,13 +11,11 @@ class Scope
   end
 
   def lookup(name : String) : ValidType
-    if @variables.has_key?(name)
-      return @variables[name]
-    elsif parent = @parent
-      return parent.lookup(name)
-    else
-      return "nil"
+    return @variables[name] if @variables.has_key?(name)
+    if parent = @parent
+      parent.lookup(name)
     end
+    raise "Undefined variable: #{name}"
   end
 
   def assign(name : String, value : ValidType)
