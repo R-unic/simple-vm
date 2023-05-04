@@ -37,6 +37,7 @@ class VM
     @ptr += n
   end
 
+  # Runs each opcode
   def run
     length = @bytecode.size
     while @ptr < length
