@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.8.0">
+<meta name="crystal_docs.project_version" content="master">
+<meta name="crystal_docs.project_name" content="bytecode">
+
+
+
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/doc.js"></script>
+
+  <meta name="repository-name" content="bytecode">
+  <title>bytecode master</title>
+  <script type="text/javascript">
+  CrystalDocs.base_path = "";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="index.html">
+          bytecode
+        </a>
+      </h1>
+
+      <span class="project-version">
+        master
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class=" " data-id="bytecode/Closure" data-name="closure">
+      <a href="Closure.html">Closure</a>
+      
+    </li>
+  
+  <li class=" " data-id="bytecode/Op" data-name="op">
+      <a href="Op.html">Op</a>
+      
+    </li>
+  
+  <li class=" " data-id="bytecode/Scope" data-name="scope">
+      <a href="Scope.html">Scope</a>
+      
+    </li>
+  
+  <li class=" " data-id="bytecode/TypeChecker" data-name="typechecker(t)">
+      <a href="TypeChecker.html">TypeChecker</a>
+      
+    </li>
+  
+  <li class="parent " data-id="bytecode/Types" data-name="types">
+      <a href="Types.html">Types</a>
+      
+        <ul>
+  
+  <li class=" " data-id="bytecode/Types/ValidType" data-name="types::validtype">
+      <a href="Types/ValidType.html">ValidType</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="bytecode/VM" data-name="vm">
+      <a href="VM.html">VM</a>
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1><a id="simple-vm" class="anchor" href="#simple-vm">  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>simple-vm</h1>
+<p>greater than</p>
+<pre><code class="language-rb">vm = VM.new [ # 10 &gt; 20
+  Op::PUSH, 0,
+  Op::PUSH, 1,
+  Op::GT,
+  Op::ECHO,
+  Op::END
+], [10, 20]
+vm.run # =&gt; 0.0 (false)</code></pre>
+<p>simple arithmetic</p>
+<pre><code class="language-rb">vm = VM.new [ # 14 + 6 - 12 * 3
+  Op::PUSH, 0,
+  Op::PUSH, 1,
+  Op::PUSH, 2,
+  Op::PUSH, 3,
+  Op::MUL,
+  Op::SUB,
+  Op::ADD,
+  Op::ECHO,
+  Op::END
+], [14, 6, 12, 3]
+vm.run # =&gt; -16.0</code></pre>
+<p>closures</p>
+<pre><code class="language-rb">do_something = VM.new [ # fn do_something(b) { echo a; echo b; }
+  Op::LOAD, 0,
+  Op::ECHO,
+  Op::LOAD, 1,
+  Op::ECHO,
+  Op::END
+], [&quot;a&quot;, &quot;b&quot;] of Types::ValidType
+
+vm = VM.new [ # a = &quot;something&quot; (define do_something) do_something(&quot;some value&quot;)
+  Op::PUSH, 0, # &quot;something&quot;
+  Op::STORE, 1, # a = &quot;something&quot;
+
+  # start of function def, first values are arguments. second to last value is the function body (as it's own VM).
+  Op::PUSH, 4, # &quot;b&quot;
+  Op::PUSH, 2, # VM&lt;do_something&gt;
+  Op::PROC, 3, 1, # create fn with name at address 3 (&quot;func&quot;), and 1 argument (&quot;b&quot;)
+
+  Op::PUSH, 5, # &quot;some value&quot;
+  Op::CALL, 2, 1, # lookup and call closure name at address 2 with 1 argument (&quot;some value&quot;)
+  Op::END
+], [
+  &quot;something&quot;, &quot;a&quot;,
+  do_something &quot;func&quot;, &quot;b&quot;,
+  &quot;some value&quot;
+] of Types::ValidType
+
+vm.run # =&gt; something some value</code></pre>
+<p>fibonacci sequence</p>
+<pre><code class="language-rb">fib = VM.new [
+  Op::LOAD, 0,
+  Op::PUSH, 1,
+  Op::LT,
+
+  Op::JZ, 10, # if false jump to 10 (noop)
+  Op::LOAD, 0, # n
+  Op::RETURN,
+
+  Op::NOOP, # else (this is unnecessary, just for readability)
+  Op::LOAD, 0, # n
+  Op::PUSH, 2, # 1
+  Op::SUB, # n - 1
+  Op::CALL, 3, 1, # fib(n - 1)
+
+  Op::LOAD, 0, # n
+  Op::PUSH, 1, # 2
+  Op::SUB, # n - 2
+  Op::CALL, 3, 1, # fib(n - 2)
+  Op::ADD, # fib(n - 1) + fib(n - 2)
+
+  Op::RETURN
+], [&quot;n&quot;, 2, 1, &quot;fib&quot;] of Types::ValidType
+
+vm = VM.new [
+  Op::PUSH, 2,
+  Op::PUSH, 0,
+  Op::PROC, 1, 1,
+
+  Op::PUSH, 3,
+  Op::CALL, 1, 1,
+  Op::ECHO,
+  Op::END
+], [fib, &quot;fib&quot;, &quot;n&quot;, 25] of Types::ValidType
+
+vm.run # 75025</code></pre>
+</div>
+</body>
+</html>

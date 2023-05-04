@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.8.0">
+<meta name="crystal_docs.project_version" content="master">
+<meta name="crystal_docs.project_name" content="bytecode">
+
+
+
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/doc.js"></script>
+
+  <meta name="repository-name" content="bytecode">
+  <title>TypeChecker(T) - bytecode master</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="index.html">
+          bytecode
+        </a>
+      </h1>
+
+      <span class="project-version">
+        master
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class=" " data-id="bytecode/Closure" data-name="closure">
+      <a href="Closure.html">Closure</a>
+      
+    </li>
+  
+  <li class=" " data-id="bytecode/Op" data-name="op">
+      <a href="Op.html">Op</a>
+      
+    </li>
+  
+  <li class=" " data-id="bytecode/Scope" data-name="scope">
+      <a href="Scope.html">Scope</a>
+      
+    </li>
+  
+  <li class=" current" data-id="bytecode/TypeChecker" data-name="typechecker(t)">
+      <a href="TypeChecker.html">TypeChecker</a>
+      
+    </li>
+  
+  <li class="parent " data-id="bytecode/Types" data-name="types">
+      <a href="Types.html">Types</a>
+      
+        <ul>
+  
+  <li class=" " data-id="bytecode/Types/ValidType" data-name="types::validtype">
+      <a href="Types/ValidType.html">ValidType</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="bytecode/VM" data-name="vm">
+      <a href="VM.html">VM</a>
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">module</span> TypeChecker(T)
+
+</h1>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/R-unic/simple-vm/blob/e92f4653a16608f0d657e7b37a4026908784a8e2/src/typechecker.cr#L4" target="_blank">
+        typechecker.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#assert%28operand%3AValidType%29-class-method" class="signature"><strong>.assert</strong>(operand : ValidType)</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#assert_operands%28left%3AValidType%2Cright%3AValidType%29-class-method" class="signature"><strong>.assert_operands</strong>(left : ValidType, right : ValidType)</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+
+
+<div class="methods-inherited">
+  
+</div>
+
+
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="assert(operand:ValidType)-class-method">
+      <div class="signature">
+        
+        def self.<strong>assert</strong>(operand : <a href="Types/ValidType.html">ValidType</a>)
+
+        <a class="method-permalink" href="#assert%28operand%3AValidType%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/R-unic/simple-vm/blob/e92f4653a16608f0d657e7b37a4026908784a8e2/src/typechecker.cr#L10" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="assert_operands(left:ValidType,right:ValidType)-class-method">
+      <div class="signature">
+        
+        def self.<strong>assert_operands</strong>(left : <a href="Types/ValidType.html">ValidType</a>, right : <a href="Types/ValidType.html">ValidType</a>)
+
+        <a class="method-permalink" href="#assert_operands%28left%3AValidType%2Cright%3AValidType%29-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/R-unic/simple-vm/blob/e92f4653a16608f0d657e7b37a4026908784a8e2/src/typechecker.cr#L5" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+
+
+</div>
+
+</body>
+</html>
