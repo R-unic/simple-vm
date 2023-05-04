@@ -1,12 +1,14 @@
-name: bytecode
+name: simple-vm
 version: 0.1.0
+description: |
+  A simple user-defined bytecode VM
 
 authors:
   - R-unic <roleyspersonal@gmail.com>
 
 targets:
-  bytecode:
-    main: src/bytecode.cr
+  vm:
+    main: src/vm.cr
 
 crystal: 1.8.1
 
