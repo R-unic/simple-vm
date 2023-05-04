@@ -95,12 +95,18 @@ class VM
       when Op::CALL
         arg_count = @bytecode[@ptr + 2].to_i # get the argument amount provided
         arg_values = Array(ValidType).new(arg_count) { @stack.pop }
-
         var_name = load_from_memory(1).to_s
         closure = @scope.lookup(var_name)
         TypeChecker(Closure).assert(closure)
         @stack << closure.as(Closure).call(arg_values)
         advance 3
+      when Op::INDEX
+        operand = @stack.pop
+        idx = load_from_memory(1)
+        TypeChecker(Array(BaseValidType)).assert(operand)
+        TypeChecker(Int64 | Int32).assert(idx)
+        @stack << operand.as(Array(BaseValidType))[idx.as(Int64)]
+        advance 2
       when Op::CONCAT
         right = @stack.pop
         left = @stack.pop

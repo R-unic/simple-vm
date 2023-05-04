@@ -10,6 +10,7 @@ enum Op
   CALL
   LOAD
   STORE
+  INDEX
   CONCAT
   ADD
   SUB
