@@ -57,19 +57,28 @@ class VM
       when Op::PROC
         name = @memory[@bytecode[@ptr + 1].to_i].to_s
         definition = @stack.pop
+        arg_count = @bytecode[@ptr + 2].to_i
         TypeChecker(VM).assert(definition)
-        closure = Closure.new(name, definition.as(VM), @scope, [] of String)
+        closure = Closure.new(name, definition.as(VM), @scope)
+        arg_count.times do |i|
+          arg_name = @stack.pop
+          TypeChecker(String).assert(arg_name)
+          value = @stack.pop
+          closure.scope.assign(arg_name.to_s, value)
+        end
+
         @scope.assign(name, closure)
         @stack << closure
-        @ptr += 2
+        @ptr += 3
       when Op::CALL
         closure = @stack.pop
         TypeChecker(Closure).assert(closure)
         closure.as(Closure).call
-        @ptr += 1
+        @ptr += 2
       when Op::CONCAT
         right = @stack.pop
         left = @stack.pop
+        TypeChecker(String).assert_operands(left, right)
         @stack << (left.to_s + right.to_s)
         @ptr += 1
       when Op::ADD
@@ -209,18 +218,22 @@ class VM
 end
 
 say_hello = VM.new [
-  Op::PUSH, 0,
+  Op::LOAD, 0,
+  Op::ECHO,
+  Op::LOAD, 1,
   Op::ECHO,
   Op::HALT
-], ["hello world"] of Types::ValidType
+], ["a", "b"] of Types::ValidType
 
 vm = VM.new [
   Op::PUSH, 0,
   Op::STORE, 1,
+  Op::PUSH, 4,
+  Op::PUSH, 5,
   Op::PUSH, 3,
-  Op::PROC, 2,
-  Op::CALL,
+  Op::PROC, 2, 1,
+  Op::CALL, 1,
   Op::HALT
-], ["something", "a", "func", say_hello] of Types::ValidType
+], ["something", "a", "func", say_hello, "some value", "b"] of Types::ValidType
 
 vm.run

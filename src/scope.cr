@@ -1,7 +1,7 @@
 require "./types"
 require "./closure"
 
-# TODO: invalid variable identifiers
+# TODO: invalid variable identifiers, already defined variables, undefined variables
 class Scope
   @variables : Hash(String, Types::ValidType)
   @parent : Scope? = nil
