@@ -57,23 +57,31 @@ class VM
       when Op::PROC
         name = @memory[@bytecode[@ptr + 1].to_i].to_s
         definition = @stack.pop
-        arg_count = @bytecode[@ptr + 2].to_i
         TypeChecker(VM).assert(definition)
-        closure = Closure.new(name, definition.as(VM), @scope)
-        arg_count.times do |i|
+
+        arg_count = @bytecode[@ptr + 2].to_i
+        arg_names = [] of String
+        arg_count.times do
           arg_name = @stack.pop
           TypeChecker(String).assert(arg_name)
-          value = @stack.pop
-          closure.scope.assign(arg_name.to_s, value)
+          arg_names << arg_name.to_s
         end
 
+        closure = Closure.new(name, definition.as(VM), @scope, arg_names)
         @scope.assign(name, closure)
         @stack << closure
         @ptr += 3
       when Op::CALL
+        arg_values = [] of Types::ValidType
+        arg_count = @bytecode[@ptr + 1].to_i
+        arg_count.times do
+          value = @stack.pop
+          arg_values << value
+        end
+
         closure = @stack.pop
         TypeChecker(Closure).assert(closure)
-        closure.as(Closure).call
+        closure.as(Closure).call(arg_values)
         @ptr += 2
       when Op::CONCAT
         right = @stack.pop
@@ -217,23 +225,29 @@ class VM
   end
 end
 
-say_hello = VM.new [
+do_something = VM.new [
   Op::LOAD, 0,
   Op::ECHO,
   Op::LOAD, 1,
   Op::ECHO,
+  Op::LOAD, 2,
+  Op::ECHO,
   Op::HALT
-], ["a", "b"] of Types::ValidType
+], ["a", "b", "c"] of Types::ValidType
 
-vm = VM.new [
-  Op::PUSH, 0,
+vm = VM.new [ # a = "something" (define do_something) do_something("some value")
+  Op::PUSH, 0, # "something"
   Op::STORE, 1,
-  Op::PUSH, 4,
-  Op::PUSH, 5,
-  Op::PUSH, 3,
-  Op::PROC, 2, 1,
-  Op::CALL, 1,
+
+  Op::PUSH, 5, # "b"
+  Op::PUSH, 7, # "c"
+  Op::PUSH, 3, # VM<do_something>
+  Op::PROC, 2, 2,
+
+  Op::PUSH, 4, # "some value"
+  Op::PUSH, 6, # "some other value"
+  Op::CALL, 2,
   Op::HALT
-], ["something", "a", "func", say_hello, "some value", "b"] of Types::ValidType
+], ["something", "a", "func", do_something, "some value", "b", "some other value", "c"] of Types::ValidType
 
 vm.run

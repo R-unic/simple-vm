@@ -6,12 +6,13 @@ class Closure
   def initialize(
     @name : String,
     @function_def : VM,
-    scope : Scope
-  )
-    @scope = Scope.new(scope)
-  end
+    @scope : Scope,
+    @arg_names : Array(String)
+  ) end
 
-  def call
-    VM.new(@function_def.bytecode, @function_def.memory, @scope).run
+  def call(arg_values)
+    local_scope = Scope.new(@scope)
+    arg_values.each_with_index { |arg, i| local_scope.assign(@arg_names[i], arg) }
+    VM.new(@function_def.bytecode, @function_def.memory, local_scope).run
   end
 end
