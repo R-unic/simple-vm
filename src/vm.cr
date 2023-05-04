@@ -16,14 +16,14 @@ class VM
     @stack = [] of Types::ValidType
     @ptr = 0
 
-    raise "No HALT instruction found in bytecode" unless @bytecode.includes?(Op::HALT)
+    raise "No END instruction found in bytecode" unless @bytecode.includes?(Op::END)
   end
 
   def run
     while @ptr < @bytecode.size
       op = @bytecode[@ptr]
       case op
-      when Op::HALT
+      when Op::END
         break
       when Op::ECHO
         value = @stack.pop
@@ -232,7 +232,7 @@ do_something = VM.new [
   Op::ECHO,
   Op::LOAD, 2,
   Op::ECHO,
-  Op::HALT
+  Op::END
 ], ["a", "b", "c"] of Types::ValidType
 
 vm = VM.new [ # a = "something" (define do_something) do_something("some value")
@@ -247,7 +247,7 @@ vm = VM.new [ # a = "something" (define do_something) do_something("some value")
   Op::PUSH, 4, # "some value"
   Op::PUSH, 6, # "some other value"
   Op::CALL, 2,
-  Op::HALT
+  Op::END
 ], ["something", "a", "func", do_something, "some value", "b", "some other value", "c"] of Types::ValidType
 
 vm.run

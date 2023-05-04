@@ -1,5 +1,5 @@
 enum Op
-  HALT
+  END
   ECHO
   PUSH
   POP
