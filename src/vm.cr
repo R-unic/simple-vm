@@ -16,7 +16,7 @@ class VM
     @stack = [] of Types::ValidType
     @ptr = 0
 
-    raise "No END instruction found in bytecode" unless @bytecode.includes?(Op::END)
+    raise "No END or RETURN instruction found in bytecode" unless @bytecode.includes?(Op::END) || @bytecode.includes?(Op::RETURN)
   end
 
   def run
@@ -81,8 +81,10 @@ class VM
 
         closure = @stack.pop
         TypeChecker(Closure).assert(closure)
-        closure.as(Closure).call(arg_values)
+        @stack << closure.as(Closure).call(arg_values)
         @ptr += 2
+      when Op::RETURN
+        return @stack.pop
       when Op::CONCAT
         right = @stack.pop
         left = @stack.pop
@@ -231,8 +233,7 @@ do_something = VM.new [
   Op::LOAD, 1,
   Op::ECHO,
   Op::LOAD, 2,
-  Op::ECHO,
-  Op::END
+  Op::RETURN
 ], ["a", "b", "c"] of Types::ValidType
 
 vm = VM.new [ # a = "something" (define do_something) do_something("some value")
@@ -247,6 +248,8 @@ vm = VM.new [ # a = "something" (define do_something) do_something("some value")
   Op::PUSH, 4, # "some value"
   Op::PUSH, 6, # "some other value"
   Op::CALL, 2,
+
+  Op::ECHO,
   Op::END
 ], ["something", "a", "func", do_something, "some value", "b", "some other value", "c"] of Types::ValidType
 

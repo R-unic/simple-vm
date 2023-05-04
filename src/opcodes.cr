@@ -7,6 +7,7 @@ enum Op
   DUP
   PROC
   CALL
+  RETURN
   LOAD
   STORE
   CONCAT
