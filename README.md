@@ -7,7 +7,7 @@ vm = VM.new [ # 10 > 20
   Op::PUSH, 1,
   Op::GT,
   Op::ECHO,
-  Op::HALT
+  Op::END
 ], [10_f32, 20_f32]
 vm.run # => 0.0 (false)
 ```
@@ -23,7 +23,7 @@ vm = VM.new [ # 14 + 6 - 12 * 3
   Op::SUB,
   Op::ADD,
   Op::ECHO,
-  Op::HALT
+  Op::END
 ], [14_f32, 6_f32, 12_f32, 3_f32]
 vm.run # => -16.0
 ```
@@ -35,7 +35,7 @@ do_something = VM.new [ # fn do_something(b) { echo a; echo b; }
   Op::ECHO,
   Op::LOAD, 1,
   Op::ECHO,
-  Op::HALT
+  Op::END
 ], ["a", "b"] of Types::ValidType
 
 vm = VM.new [ # a = "something" (define do_something) do_something("some value")
@@ -49,7 +49,7 @@ vm = VM.new [ # a = "something" (define do_something) do_something("some value")
 
   Op::PUSH, 4, # "some value"
   Op::CALL, 1, # call last closure in the stack with 1 argument, "some value".
-  Op::HALT
+  Op::END
 ], ["something", "a", "func", do_something, "some value", "b"] of Types::ValidType
 
 vm.run # => something some value
