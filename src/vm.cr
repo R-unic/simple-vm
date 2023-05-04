@@ -19,10 +19,20 @@ class VM
     raise "No END or RETURN instruction found in bytecode" unless @bytecode.includes?(Op::END) || @bytecode.includes?(Op::RETURN)
   end
 
+  # Loads an address from memory
+  # Takes a number to offset the instruction pointer by
+  # ```
+  # load_from_memory 1
+  # ```
   private def load_from_memory(offset : Int32)
     @memory[@bytecode[@ptr + offset].to_i]
   end
 
+  # Advances the instruction pointer
+  # ```
+  # advance
+  # advance 2
+  # ```
   private def advance(n : Int32 = 1)
     @ptr += n
   end
