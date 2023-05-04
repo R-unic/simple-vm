@@ -1,6 +1,6 @@
 require "./vm"
 require "./opcodes"
-require "./types"
+require "./typechecker"; include Types;
 
 vm = VM.new [
   Op::PUSH, 0,
@@ -10,4 +10,6 @@ vm = VM.new [
   Op::END
 ], [
   "hello ", "world"
-] of Types::ValidType
+] of ValidType
+
+vm.run

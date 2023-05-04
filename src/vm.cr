@@ -1,20 +1,19 @@
-require "./types"
+require "./typechecker"; include Types;
 require "./scope"
 require "./opcodes"
-require "./typechecker"
 
 class VM
   getter bytecode : Array(Int32 | Op)
-  getter memory : Array(Types::ValidType)
-  getter stack : Array(Types::ValidType)
+  getter memory : Array(ValidType)
+  getter stack : Array(ValidType)
 
   def initialize(
     @bytecode : Array(Int32 | Op),
-    @memory : Array(Types::ValidType),
+    @memory : Array(ValidType),
     scope : Scope? = nil
   )
     @scope = scope || Scope.new
-    @stack = [] of Types::ValidType
+    @stack = [] of ValidType
     @ptr = 0
 
     raise "No END or RETURN instruction found in bytecode" unless @bytecode.includes?(Op::END) || @bytecode.includes?(Op::RETURN)
@@ -77,7 +76,7 @@ class VM
       when Op::CALL
         var_addr = @bytecode[@ptr + 1].to_i # get the function name address provided
         arg_count = @bytecode[@ptr + 2].to_i # get the argument amount provided
-        arg_values = Array(Types::ValidType).new(arg_count) { @stack.pop }
+        arg_values = Array(ValidType).new(arg_count) { @stack.pop }
 
         var_name = @memory[var_addr].to_s
         closure = @scope.lookup(var_name)

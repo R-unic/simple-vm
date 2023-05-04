@@ -1,17 +1,16 @@
-require "./types"
 require "./closure"
 
 # TODO: invalid variable identifiers, already defined variables, undefined variables
 class Scope
-  @variables : Hash(String, Types::ValidType)
+  @variables : Hash(String, ValidType)
   @parent : Scope? = nil
 
   def initialize(parent = nil)
     @parent = parent
-    @variables = {} of String => Types::ValidType
+    @variables = {} of String => ValidType
   end
 
-  def lookup(name : String) : Types::ValidType
+  def lookup(name : String) : ValidType
     if @variables.has_key?(name)
       return @variables[name]
     elsif parent = @parent
@@ -21,7 +20,7 @@ class Scope
     end
   end
 
-  def assign(name : String, value : Types::ValidType)
+  def assign(name : String, value : ValidType)
     @variables[name] = value
   end
 end
