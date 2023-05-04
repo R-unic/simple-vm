@@ -13,7 +13,7 @@ class Scope
   def lookup(name : String) : ValidType
     return @variables[name] if @variables.has_key?(name)
     if parent = @parent
-      parent.lookup(name)
+      return parent.lookup(name)
     end
     raise "Undefined variable: #{name}"
   end

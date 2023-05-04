@@ -3,13 +3,22 @@ require "./spec_helper"
 describe VM do
   # TODO: Write tests
 
+  it "should throw when loading an undefined variable" do
+    vm = VM.new [
+      Op::LOAD, 0,
+      Op::END
+    ], ["bababooey"] of ValidType
+
+    expect_raises(Exception) { vm.run }
+  end
+
   it "should run hello world" do
     vm = VM.new [
       Op::PUSH, 0,
       Op::PUSH, 1,
       Op::CONCAT,
       Op::END
-    ], ["hello ", "world"] of Types::ValidType
+    ], ["hello ", "world"] of ValidType
 
     vm.run
     vm.stack.first.should eq("hello world")
@@ -30,7 +39,7 @@ describe VM do
       Op::MUL,
       Op::ECHO,
       Op::END
-    ], [6, 14, 6, 12, 3, 17] of Types::ValidType
+    ], [6, 14, 6, 12, 3, 17] of ValidType
 
     vm.run
     vm.stack.first.should eq(-2.5454545454545454)
@@ -61,7 +70,7 @@ describe VM do
       Op::RETURN
     ], [
       "n", 2, 1, "fib"
-    ] of Types::ValidType
+    ] of ValidType
 
     instructions = [
       Op::PUSH, 2,
@@ -75,14 +84,14 @@ describe VM do
 
     vm = VM.new instructions, [
       fib, "fib", "n", 25
-    ] of Types::ValidType
+    ] of ValidType
 
     vm.run
     vm.stack.first.should eq(75025)
 
     vm = VM.new instructions, [
       fib, "fib", "n", 15
-    ] of Types::ValidType
+    ] of ValidType
 
     vm.run
     vm.stack.first.should eq(610)
