@@ -45,10 +45,10 @@ vm = VM.new [ # a = "something" (define do_something) do_something("some value")
   # start of function def, first values are arguments. second to last value is the function body (as it's own VM).
   Op::PUSH, 5, # "b"
   Op::PUSH, 3, # VM<do_something>
-  Op::PROC, 2, 1, # create fn with name at address 2 ("func"), and 1 argument
+  Op::PROC, 2, 1, # create fn with name at address 2 ("func"), and 1 argument ("b")
 
   Op::PUSH, 4, # "some value"
-  Op::CALL, 1, # call last closure in the stack with 1 argument, "some value".
+  Op::CALL, 1, # call last closure in the stack (before arguments) with 1 argument ("some value")
   Op::END
 ], ["something", "a", "func", do_something, "some value", "b"] of Types::ValidType
 
