@@ -1,16 +1,11 @@
 name: simple-vm
-version: 0.2.0
+version: 0.3.0
 description: |
   A simple user-defined bytecode VM
 
 repository: "https://github.com/R-unic/simple-vm"
-authors:
-  - R-unic <roleyspersonal@gmail.com>
-
-targets:
-  simple-vm:
-    main: src/vm.cr
 
 crystal: 1.8.1
-
 license: MIT
+authors:
+  - R-unic <roleyspersonal@gmail.com>
