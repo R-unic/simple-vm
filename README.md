@@ -43,14 +43,18 @@ vm = VM.new [ # a = "something" (define do_something) do_something("some value")
   Op::STORE, 1, # a = "something"
 
   # start of function def, first values are arguments. second to last value is the function body (as it's own VM).
-  Op::PUSH, 5, # "b"
-  Op::PUSH, 3, # VM<do_something>
-  Op::PROC, 2, 1, # create fn with name at address 2 ("func"), and 1 argument ("b")
+  Op::PUSH, 4, # "b"
+  Op::PUSH, 2, # VM<do_something>
+  Op::PROC, 3, 1, # create fn with name at address 3 ("func"), and 1 argument ("b")
 
-  Op::PUSH, 4, # "some value"
+  Op::PUSH, 5, # "some value"
   Op::CALL, 2, 1, # lookup and call closure name at address 2 with 1 argument ("some value")
   Op::END
-], ["something", "a", "func", do_something, "some value", "b"] of Types::ValidType
+], [
+  "something", "a",
+  do_something "func", "b",
+  "some value"
+] of Types::ValidType
 
 vm.run # => something some value
 ```
@@ -79,9 +83,7 @@ fib = VM.new [
   Op::ADD, # fib(n - 1) + fib(n - 2)
 
   Op::RETURN
-], [
-  "n", 2, 1, "fib"
-] of Types::ValidType
+], ["n", 2, 1, "fib"] of Types::ValidType
 
 vm = VM.new [
   Op::PUSH, 2,
@@ -92,9 +94,7 @@ vm = VM.new [
   Op::CALL, 1, 1,
   Op::ECHO,
   Op::END
-], [
-  fib, "fib", "n", 25
-] of Types::ValidType
+], [fib, "fib", "n", 25] of Types::ValidType
 
 vm.run # 75025
 ```
