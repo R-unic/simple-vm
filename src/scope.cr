@@ -1,6 +1,5 @@
 require "./closure"
 
-# TODO: invalid variable identifiers
 class Scope
   @variables : Hash(String, ValidType)
   @parent : Scope? = nil
@@ -19,6 +18,11 @@ class Scope
   end
 
   def assign(name : String, value : ValidType)
+    raise "Invalid variable identifier: #{name}" unless valid_identifier?(name, value.is_a?(Closure))
     @variables[name] = value
+  end
+
+  private def valid_identifier?(identifier : String, is_method : Bool) : Bool
+    is_method ? !!(identifier =~ /^[a-zA-Z_][a-zA-Z0-9_$]*\??$/) : !!(identifier =~ /^[a-zA-Z_][a-zA-Z0-9_$]*$/)
   end
 end
