@@ -1,6 +1,6 @@
 # simple-vm
 
-greater than
+### boolean logic
 ```rb
 vm = VM.new [ # 10 > 20
   Op::PUSH, 0,
@@ -12,7 +12,7 @@ vm = VM.new [ # 10 > 20
 vm.run # => 0.0 (false)
 ```
 
-simple arithmetic
+### simple arithmetic
 ```rb
 vm = VM.new [ # 14 + 6 - 12 * 3
   Op::PUSH, 0,
@@ -28,7 +28,7 @@ vm = VM.new [ # 14 + 6 - 12 * 3
 vm.run # => -16.0
 ```
 
-closures
+### closures
 ```rb
 do_something = VM.new [ # fn do_something(b) { echo a; echo b; }
   Op::LOAD, 0,
@@ -59,7 +59,7 @@ vm = VM.new [ # a = "something" (define do_something) do_something("some value")
 vm.run # => something some value
 ```
 
-fibonacci sequence
+### fibonacci sequence
 ```rb
 fib = VM.new [
   Op::LOAD, 0,
