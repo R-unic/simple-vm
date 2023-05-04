@@ -23,11 +23,14 @@ class VM
     while @ptr < @bytecode.size
       op = @bytecode[@ptr]
       case op
+      when Op::NOOP
+        @ptr += 1
       when Op::END
         break
       when Op::ECHO
         value = @stack.pop
         puts value
+        @stack << value
         @ptr += 1
       when Op::PUSH
         @stack << @memory[@bytecode[@ptr + 1].to_i]
@@ -42,7 +45,7 @@ class VM
         @stack << left
         @ptr += 1
       when Op::DUP
-        value = @stack[-1]
+        value = @stack.last
         @stack << value
         @ptr += 1
       when Op::LOAD
@@ -61,11 +64,10 @@ class VM
         TypeChecker(VM).assert(definition)
 
         arg_count = @bytecode[@ptr + 2].to_i # get the argument amount provided
-        arg_names = [] of String
-        arg_count.times do
+        arg_names = Array(String).new(arg_count) do
           arg_name = @stack.pop
           TypeChecker(String).assert(arg_name)
-          arg_names << arg_name.to_s
+          arg_name.to_s
         end
 
         closure = Closure.new(name, definition.as(VM), @scope, arg_names)
@@ -73,13 +75,9 @@ class VM
         @stack << closure
         @ptr += 3
       when Op::CALL
-        arg_values = [] of Types::ValidType
-        arg_count = @bytecode[@ptr + 1].to_i # get the argument amount provided
-        var_addr = @bytecode[@ptr + 2].to_i # get the function name address provided
-        arg_count.times do
-          value = @stack.pop
-          arg_values << value
-        end
+        var_addr = @bytecode[@ptr + 1].to_i # get the function name address provided
+        arg_count = @bytecode[@ptr + 2].to_i # get the argument amount provided
+        arg_values = Array(Types::ValidType).new(arg_count) { @stack.pop }
 
         var_name = @memory[var_addr].to_s
         closure = @scope.lookup(var_name)
@@ -211,14 +209,14 @@ class VM
         @ptr = @bytecode[@ptr + 1].to_i
       when Op::JNZ
         value = @stack.pop
-        if value != 0.0_f32
+        if value != 0
           @ptr = @bytecode[@ptr + 1].to_i
         else
           @ptr += 2
         end
       when Op::JZ
         value = @stack.pop
-        if value == 0.0_f32
+        if value == 0
           @ptr = @bytecode[@ptr + 1].to_i
         else
           @ptr += 2

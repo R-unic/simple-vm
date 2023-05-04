@@ -48,7 +48,7 @@ vm = VM.new [ # a = "something" (define do_something) do_something("some value")
   Op::PROC, 2, 1, # create fn with name at address 2 ("func"), and 1 argument ("b")
 
   Op::PUSH, 4, # "some value"
-  Op::CALL, 1, # call last closure in the stack (before arguments) with 1 argument ("some value")
+  Op::CALL, 2, 1, # lookup and call closure name at address 2 with 1 argument ("some value")
   Op::END
 ], ["something", "a", "func", do_something, "some value", "b"] of Types::ValidType
 
