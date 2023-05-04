@@ -54,12 +54,13 @@ class VM
         value = @stack.pop
         @scope.assign(name, value)
         @ptr += 2
+      when Op::RETURN; return @stack.pop
       when Op::PROC
-        name = @memory[@bytecode[@ptr + 1].to_i].to_s
-        definition = @stack.pop
+        name = @memory[@bytecode[@ptr + 1].to_i].to_s # get the function name from the address provided
+        definition = @stack.pop # pop the VM to be wrapped in a closure
         TypeChecker(VM).assert(definition)
 
-        arg_count = @bytecode[@ptr + 2].to_i
+        arg_count = @bytecode[@ptr + 2].to_i # get the argument amount provided
         arg_names = [] of String
         arg_count.times do
           arg_name = @stack.pop
@@ -73,18 +74,18 @@ class VM
         @ptr += 3
       when Op::CALL
         arg_values = [] of Types::ValidType
-        arg_count = @bytecode[@ptr + 1].to_i
+        arg_count = @bytecode[@ptr + 1].to_i # get the argument amount provided
+        var_addr = @bytecode[@ptr + 2].to_i # get the function name address provided
         arg_count.times do
           value = @stack.pop
           arg_values << value
         end
 
-        closure = @stack.pop
+        var_name = @memory[var_addr].to_s
+        closure = @scope.lookup(var_name)
         TypeChecker(Closure).assert(closure)
         @stack << closure.as(Closure).call(arg_values)
-        @ptr += 2
-      when Op::RETURN
-        return @stack.pop
+        @ptr += 3
       when Op::CONCAT
         right = @stack.pop
         left = @stack.pop
@@ -94,117 +95,117 @@ class VM
       when Op::ADD
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32) + right.as(Float32))
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << (left.as(Float64 | Int64) + right.as(Float64 | Int64))
         @ptr += 1
       when Op::SUB
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32) - right.as(Float32))
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << (left.as(Float64 | Int64) - right.as(Float64 | Int64))
         @ptr += 1
       when Op::MUL
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32) * right.as(Float32))
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << (left.as(Float64 | Int64) * right.as(Float64 | Int64))
         @ptr += 1
       when Op::DIV
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32) / right.as(Float32))
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << (left.as(Float64 | Int64) / right.as(Float64 | Int64))
         @ptr += 1
       when Op::POW
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32) ** right.as(Float32))
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << (left.as(Float64 | Int64) ** right.as(Float64 | Int64))
         @ptr += 1
       when Op::MOD
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32) % right.as(Float32))
+        TypeChecker(Int64).assert_operands(left, right)
+        @stack << (left.as(Int64) % right.as(Int64))
         @ptr += 1
       when Op::BSHL
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32).to_i << right.as(Float32).to_i).to_f32
+        TypeChecker(Int64).assert_operands(left, right)
+        @stack << (left.as(Int64) << right.as(Int64))
         @ptr += 1
       when Op::BSHR
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32).to_i >> right.as(Float32).to_i).to_f32
+        TypeChecker(Int64).assert_operands(left, right)
+        @stack << (left.as(Int64) >> right.as(Int64))
         @ptr += 1
       when Op::BNOT
         operand = @stack.pop
-        TypeChecker(Float32).assert(operand)
-        @stack << (~operand.as(Float32).to_i).to_f32
-        @ptr += 1
-      when Op::BOR
-        right = @stack.pop
-        left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32).to_i | right.as(Float32).to_i).to_f32
-        @ptr += 1
-      when Op::BXOR
-        right = @stack.pop
-        left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32).to_i ^ right.as(Float32).to_i).to_f32
+        TypeChecker(Int64).assert(operand)
+        @stack << ~operand.as(Int64)
         @ptr += 1
       when Op::BAND
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << (left.as(Float32).to_i & right.as(Float32).to_i).to_f32
+        TypeChecker(Int64).assert_operands(left, right)
+        @stack << (left.as(Int64) & right.as(Int64))
+        @ptr += 1
+      when Op::BOR
+        right = @stack.pop
+        left = @stack.pop
+        TypeChecker(Int64).assert_operands(left, right)
+        @stack << (left.as(Int64) | right.as(Int64))
+        @ptr += 1
+      when Op::BXOR
+        right = @stack.pop
+        left = @stack.pop
+        TypeChecker(Int64).assert_operands(left, right)
+        @stack << (left.as(Int64) ^ right.as(Int64))
         @ptr += 1
       when Op::AND
         right = @stack.pop
         left = @stack.pop
-        @stack << ((left && right) ? 1_f32 : 0_f32)
+        @stack << ((left && right) ? 1 : 0)
         @ptr += 1
       when Op::OR
         right = @stack.pop
         left = @stack.pop
-        @stack << ((left || right) ? 1_f32 : 0_f32)
+        @stack << ((left || right) ? 1 : 0)
         @ptr += 1
       when Op::NOT
         operand = @stack.pop
-        @stack << (!operand ? 1_f32 : 0_f32)
+        @stack << (!operand ? 1 : 0)
         @ptr += 1
       when Op::LT
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << ((left.as(Float32) < right.as(Float32)) ? 1_f32 : 0_f32)
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << ((left.as(Float64 | Int64) < right.as(Float64 | Int64)) ? 1 : 0)
         @ptr += 1
       when Op::LTE
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << ((left.as(Float32) <= right.as(Float32)) ? 1_f32 : 0_f32)
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << ((left.as(Float64 | Int64) <= right.as(Float64 | Int64)) ? 1 : 0)
         @ptr += 1
       when Op::GT
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << ((left.as(Float32) > right.as(Float32)) ? 1_f32 : 0_f32)
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << ((left.as(Float64 | Int64) > right.as(Float64 | Int64)) ? 1 : 0)
         @ptr += 1
       when Op::GTE
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << ((left.as(Float32) >= right.as(Float32)) ? 1_f32 : 0_f32)
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << ((left.as(Float64 | Int64) >= right.as(Float64 | Int64)) ? 1 : 0)
         @ptr += 1
       when Op::EQ
         right = @stack.pop
         left = @stack.pop
-        TypeChecker(Float32).assert_operands(left, right)
-        @stack << ((left.as(Float32) == right.as(Float32)) ? 1_f32 : 0_f32)
+        TypeChecker(Float64 | Int64).assert_operands(left, right)
+        @stack << ((left.as(Float64 | Int64) == right.as(Float64 | Int64)) ? 1 : 0)
         @ptr += 1
       when Op::JMP
         @ptr = @bytecode[@ptr + 1].to_i
@@ -226,31 +227,3 @@ class VM
     end
   end
 end
-
-do_something = VM.new [
-  Op::LOAD, 0,
-  Op::ECHO,
-  Op::LOAD, 1,
-  Op::ECHO,
-  Op::LOAD, 2,
-  Op::RETURN
-], ["a", "b", "c"] of Types::ValidType
-
-vm = VM.new [ # a = "something" (define do_something) do_something("some value")
-  Op::PUSH, 0, # "something"
-  Op::STORE, 1,
-
-  Op::PUSH, 5, # "b"
-  Op::PUSH, 7, # "c"
-  Op::PUSH, 3, # VM<do_something>
-  Op::PROC, 2, 2,
-
-  Op::PUSH, 4, # "some value"
-  Op::PUSH, 6, # "some other value"
-  Op::CALL, 2,
-
-  Op::ECHO,
-  Op::END
-], ["something", "a", "func", do_something, "some value", "b", "some other value", "c"] of Types::ValidType
-
-vm.run

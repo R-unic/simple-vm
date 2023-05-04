@@ -5,9 +5,9 @@ enum Op
   POP
   SWAP
   DUP
+  RETURN
   PROC
   CALL
-  RETURN
   LOAD
   STORE
   CONCAT
@@ -20,9 +20,9 @@ enum Op
   BSHL
   BSHR
   BNOT
+  BAND
   BOR
   BXOR
-  BAND
   AND
   OR
   NOT
