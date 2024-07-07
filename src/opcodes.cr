@@ -1,15 +1,22 @@
 enum Op
-  END
+  NOOP
+  JMP
+  JZ
+  JNZ
+  EXIT
   ECHO
   PUSH
+  PUSHNIL
   POP
   SWAP
   DUP
+
+  LOAD
+  STORE
   RETURN
   PROC
   CALL
-  LOAD
-  STORE
+
   INDEX
   CONCAT
   ADD
@@ -18,22 +25,18 @@ enum Op
   DIV
   POW
   MOD
+
   BSHL
   BSHR
   BNOT
   BAND
   BOR
   BXOR
+
   AND
   OR
   NOT
   LT
   LTE
-  GT
-  GTE
   EQ
-  JMP
-  JZ
-  JNZ
-  NOOP
 end

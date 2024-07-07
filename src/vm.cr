@@ -16,7 +16,7 @@ class VM
     @stack = [] of ValidType
     @ptr = 0
 
-    raise "No END or RETURN instruction found in bytecode" unless @bytecode.includes?(Op::END) || @bytecode.includes?(Op::RETURN)
+    raise "No END or RETURN instruction found in bytecode" unless @bytecode.includes?(Op::EXIT) || @bytecode.includes?(Op::RETURN)
   end
 
   # Loads an address from memory
@@ -24,7 +24,7 @@ class VM
   # ```
   # load_from_memory 1
   # ```
-  private def load_from_memory(offset : Int32)
+  private def load_from_memory(offset : Int32) : ValidType
     @memory[@bytecode[@ptr + offset].to_i]
   end
 
@@ -33,28 +33,44 @@ class VM
   # advance
   # advance 2
   # ```
-  private def advance(n : Int32 = 1)
+  private def advance(n : Int32 = 1) : Nil
     @ptr += n
   end
 
   # Runs each opcode
-  def run
+  def run : ValidType
     length = @bytecode.size
     while @ptr < length
       op = @bytecode[@ptr]
       case op
       when Op::NOOP
         advance
-      when Op::END
+      when Op::JMP
+        @ptr = @bytecode[@ptr + 1].to_i
+      when Op::JNZ
+        value = @stack.pop
+        if value != 0
+          @ptr = @bytecode[@ptr + 1].to_i
+        else
+          advance 2
+        end
+      when Op::JZ
+        value = @stack.pop
+        if value == 0
+          @ptr = @bytecode[@ptr + 1].to_i
+        else
+          advance 2
+        end
+      when Op::EXIT
         break
       when Op::ECHO
-        value = @stack.pop
-        puts value
-        @stack << value
         advance
       when Op::PUSH
         @stack << load_from_memory(1)
         advance 2
+      when Op::PUSHNIL
+        @stack << :nil_marker
+        advance 1
       when Op::POP
         @stack.pop
         advance
@@ -77,7 +93,8 @@ class VM
         value = @stack.pop
         @scope.assign(name, value)
         advance 2
-      when Op::RETURN; return @stack.pop
+      when Op::RETURN
+        return @stack.pop
       when Op::PROC
         name = load_from_memory(1).to_s # get the function name from the address provided
         definition = @stack.pop # pop the VM to be wrapped in a closure
@@ -211,41 +228,14 @@ class VM
         TypeChecker(Float64 | Int64 | Int32).assert_operands(left, right)
         @stack << ((left.as(Float64 | Int64 | Int32) <= right.as(Float64 | Int64 | Int32)) ? 1 : 0)
         advance
-      when Op::GT
-        right = @stack.pop
-        left = @stack.pop
-        TypeChecker(Float64 | Int64 | Int32).assert_operands(left, right)
-        @stack << ((left.as(Float64 | Int64 | Int32) > right.as(Float64 | Int64 | Int32)) ? 1 : 0)
-        advance
-      when Op::GTE
-        right = @stack.pop
-        left = @stack.pop
-        TypeChecker(Float64 | Int64 | Int32).assert_operands(left, right)
-        @stack << ((left.as(Float64 | Int64 | Int32) >= right.as(Float64 | Int64 | Int32)) ? 1 : 0)
-        advance
       when Op::EQ
         right = @stack.pop
         left = @stack.pop
         TypeChecker(Float64 | Int64 | Int32).assert_operands(left, right)
         @stack << ((left.as(Float64 | Int64 | Int32) == right.as(Float64 | Int64 | Int32)) ? 1 : 0)
         advance
-      when Op::JMP
-        @ptr = @bytecode[@ptr + 1].to_i
-      when Op::JNZ
-        value = @stack.pop
-        if value != 0
-          @ptr = @bytecode[@ptr + 1].to_i
-        else
-          advance 2
-        end
-      when Op::JZ
-        value = @stack.pop
-        if value == 0
-          @ptr = @bytecode[@ptr + 1].to_i
-        else
-          advance 2
-        end
       end
     end
+    return :nil_marker
   end
 end

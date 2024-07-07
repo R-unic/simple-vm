@@ -7,7 +7,7 @@ describe VM do
         Op::PUSH, 0,
         Op::PUSH, 1,
         Op::CONCAT,
-        Op::END
+        Op::EXIT
       ], ["hello ", "world"] of ValidType
 
       vm.run
@@ -19,7 +19,7 @@ describe VM do
         Op::PUSH, 0,
         Op::STORE, 1,
         Op::LOAD, 1,
-        Op::END
+        Op::EXIT
       ], ["hello world", "this$Is_Valid"] of ValidType
 
       vm.run
@@ -32,7 +32,7 @@ describe VM do
         Op::STORE, 1,
         Op::LOAD, 1,
         Op::INDEX, 2,
-        Op::END
+        Op::EXIT
       ], [["hello", "world"] of BaseValidType, "a", 1_i64] of ValidType
 
       vm.run
@@ -52,7 +52,7 @@ describe VM do
         Op::ADD,
         Op::DIV,
         Op::MUL,
-        Op::END
+        Op::EXIT
       ], [6, 14, 6, 12, 3, 17] of ValidType
 
       vm.run
@@ -61,29 +61,46 @@ describe VM do
 
     it "should run fibonacci sequence" do
       fib = VM.new [
-        Op::LOAD, 0,
-        Op::PUSH, 1,
-        Op::LT,
+        Op::LOAD, 0, # n
+        Op::PUSH, 2, # 1
+        Op::LTE,
 
-        Op::JZ, 10, # if false jump to 10 (noop)
+        Op::JZ, 10, # if false jump to 11 (noop)
         Op::LOAD, 0, # n
         Op::RETURN,
 
-        Op::NOOP, # else (this is unnecessary, just for readability)
-        Op::LOAD, 0, # n
+        Op::NOOP, # else branch
+        Op::PUSH, 1, # 0
+        Op::STORE, 4, # a = 0
         Op::PUSH, 2, # 1
-        Op::SUB, # n - 1
-        Op::CALL, 3, 1, # fib(n - 1)
+        Op::STORE, 5, # b = 1
+        Op::PUSHNIL,
+        Op::STORE, 6, # c = nil
+        Op::PUSH, 3, # 2
+        Op::STORE, 7, # i = 2
 
+        Op::NOOP, # for loop
+        Op::LOAD, 4, # a
+        Op::LOAD, 5, # b
+        Op::ADD, # a + b
+        Op::STORE, 6, # c = a + b
+        Op::LOAD, 5, # b
+        Op::STORE, 4, # a = b
+        Op::LOAD, 6, # c
+        Op::STORE, 5, # b = c
+        Op::LOAD, 7, # i
+        Op::PUSH, 2, # 1,
+        Op::ADD, # i + 1
+        Op::STORE, 7, # i = i + 1
+        Op::LOAD, 7, # i
         Op::LOAD, 0, # n
-        Op::PUSH, 1, # 2
-        Op::SUB, # n - 2
-        Op::CALL, 3, 1, # fib(n - 2)
-        Op::ADD, # fib(n - 1) + fib(n - 2)
+        Op::LTE, # i <= n
+        Op::JNZ, 27, # jump back to loop start if i <= n is true
 
-        Op::RETURN
+        Op::LOAD, 5, # b
+        Op::RETURN # return b
       ], [
-        "n", 2, 1, "fib"
+        "n", 0, 1, 2, "a", "b", "c", "i", "fib"
       ] of ValidType
 
       instructions = [
@@ -93,7 +110,7 @@ describe VM do
 
         Op::PUSH, 3,
         Op::CALL, 1, 1,
-        Op::END
+        Op::EXIT
       ]
 
       vm = VM.new instructions, [
